@@ -1,4 +1,6 @@
 import pandas as pd
+import re
+import datetime
 
 from flask import (
     Flask,
@@ -10,7 +12,7 @@ from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
 from sqlalchemy import create_engine, func
 
-engine = create_engine("sqlite:///db/rodents_db.db")
+engine = create_engine("sqlite:///db/dc_rodents.db")
 
 # reflect an existing database into a new model
 Base = automap_base()
@@ -39,8 +41,9 @@ def home():
 @app.route("/sightings")
 def sightings_data():
     
+    session = Session(engine)
 
-    # Query for the top 10 emoji data
+    # Query for the wards and sightings count
     sightings= session.query(data.WARD, func.count(data.SERVICECODEDESCRIPTION)).\
         group_by(data.WARD).\
         order_by(data.SERVICECODEDESCRIPTION.desc()).all()
@@ -58,6 +61,39 @@ def sightings_data():
         "type": "bar"
     }
     return jsonify(trace)
+
+@app.route("/date")
+def date_data():
+
+
+  #Query data for ward, count of sightings & date
+    session = Session(engine)
+
+    sightings= session.query(data.WARD, data.ADDDATE, func.count(data.SERVICECODEDESCRIPTION)).\
+        group_by(data.ADD_DATE).\
+        order_by(data.SERVICECODEDESCRIPTION.desc()).all()
+
+    ward=[]
+    count=[]
+    service_date=[]
+    for sighting in sightings:
+        ward.append(sighting[0])
+        service_date.append(sighting[1])
+        count.append(sighting[2])
+
+    
+
+
+   # Generate the plot trace
+    trace = {
+        "x": service_date,
+        "y": count,
+        "type": "bar"
+     }
+
+    return jsonify(trace)
+
+
 
 if __name__ == '__main__':
    app.run(debug=True)
