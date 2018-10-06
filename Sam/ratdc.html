@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script src="https://www.gstatic.com/charts/loader.js"></script>
+	<script>
+		google.charts.load('current', {'packages' : ['corechart']});
+        google.charts.setOnLoadCallback(drawAllSheets);
+        
+        function drawGID() {
+      var queryString = encodeURIComponent('SELECT A, H, O, Q, R, U LIMIT 5 OFFSET 8');
+
+      var query = new google.visualization.Query(
+          'https://docs.google.com/spreadsheets/d/1XWJLkAwch5GXAt_7zOFDcg8Wm8Xv29_8PWuuW15qmAE/gviz/tq?gid=0&headers=1&tq=' + queryString);
+      query.send(handleQueryResponse);
+    }
+
+    function handleQueryResponse(response) {
+      if (response.isError()) {
+        alert('Error in query: ' + response.getMessage() + ' ' + response.getDetailedMessage());
+        return;
+      }
+
+      var data = response.getDataTable();
+      var chart = new google.visualization.ColumnChart(document.getElementById('chart_div'));
+      chart.draw(data, { height: 400 });
+    }
+	
+	</script>
+</head>
+
+<body>
+	<h3>Overall Military Spending of Countries (2011-2015)</h3>
+	<div id="military_spending_div" 
+		 style="height: 500px; width:900px;"></div>
+</body>
+</html>
